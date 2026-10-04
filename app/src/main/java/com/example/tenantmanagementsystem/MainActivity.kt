@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            binding.tvResult.text = "Saved: $name | $phone | Rent paid: $rent"
+            binding.tenant = Tenant(name, phone, rent.toDouble())
         }
     }
 }

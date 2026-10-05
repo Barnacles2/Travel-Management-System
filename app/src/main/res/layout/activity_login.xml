@@ -11,7 +11,7 @@
         android:id="@+id/loginTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TENANT MANAGEMENT SYSTEM"
+        android:text="KIMBERLY'S TENANT MANAGEMENT SYSTEM"
         android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginTop="48dp"

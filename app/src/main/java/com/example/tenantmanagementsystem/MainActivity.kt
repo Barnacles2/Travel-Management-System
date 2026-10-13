@@ -11,35 +11,37 @@ import com.example.tenantmanagementsystem.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    // The most recently saved tenant. Lost on rotation unless we save it
     private var lastTenant: Tenant? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("TENANT_LIFECYCLE" , "MainActivity: onCreate")
+        Log.d("TENANT_LIFECYCLE", "MainActivity: onCreate")
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // savedInstanceState is null the first time the Activity opens
+        // RESTORE STATE (only after a rotation)
         if (savedInstanceState != null) {
             val name = savedInstanceState.getString("tenant_name")
             val phone = savedInstanceState.getString("tenant_phone")
+            val rent = savedInstanceState.getString("tenant_rent")
 
-            // Only rebuild the tenant if one was actually saved
-            if (name != null && phone != null) {
-                val rent = savedInstanceState.getDouble("tenant_rent")
+            if (name != null && phone != null && rent != null) {
                 val tenant = Tenant(name, phone, rent)
-
-                lastTenant = tenant      // so call tenant works again
-                binding.tenant = tenant  // summary shows again
+                lastTenant = tenant
+                binding.tenant = tenant
             }
         }
 
+        // SAVE button
         binding.btnSave.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val phone = binding.etPhone.text.toString().trim()
-            val rent = binding.etRent.text.toString().trim().toDoubleOrNull()
+            val rent = binding.etRent.text.toString().trim()
 
-            if (name.isEmpty() || phone.isEmpty() || rent == null) {
+            if (name.isEmpty() || phone.isEmpty() || rent.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             lastTenant = tenant
         }
 
+        // CALL TENANT button -implicit Intent
         binding.callButton.setOnClickListener {
             val tenant = lastTenant
             if (tenant == null) {
@@ -61,21 +64,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Android calls this just before destroying the Activity (e.g. on rotation).
-    // outState is the Bundle Android keeps for us.
+    // SAVE STATE (just before the Activity is destroyed)
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d("TENANT_LIFECYCLE", "MainActivity: onSaveInstanceState")
 
-        // Copy into a val so Kotlin knows it can't change after the null check
         val tenant = lastTenant
         if (tenant != null) {
-            // Each field goes in under its own KEY
             outState.putString("tenant_name", tenant.name)
             outState.putString("tenant_phone", tenant.phone)
-            outState.putDouble("tenant_rent", tenant.rentPaid)
+            outState.putString("tenant_rent", tenant.rent)
         }
     }
+
+    // LIFECYCLE METHODS
     override fun onStart() {
         super.onStart()
         Log.d("TENANT_LIFECYCLE", "MainActivity: onStart")

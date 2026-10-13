@@ -66,7 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@{tenant != null ? `Name: ` + tenant.name + `\nPhone: ` + tenant.phone + `\nRent paid: ` + String.valueOf(tenant.rentPaid) : `Saved tenant will appear here`}"
+            android:text="@{tenant != null ? tenant.summary() : `Saved tenant will appear here`}"
             app:layout_constraintTop_toBottomOf="@id/etRent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

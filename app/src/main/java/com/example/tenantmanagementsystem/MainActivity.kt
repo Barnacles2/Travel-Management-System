@@ -1,52 +1,63 @@
 package com.example.tenantmanagementsystem
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.content.Intent
 import android.view.MenuItem
-import androidx.navigation.ui.onNavDestinationSelected
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.tenantmanagementsystem.databinding.ActivityMainBinding
+import com.example.tenantmanagementsystem.databinding.NavHeaderBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    // The "driver" that switches Fragments inside the NavHost
     private lateinit var navController: NavController
-
-    // Tells the App Bar which screens are top-level (no back arrow)
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("TENANT_LIFECYCLE", "MainActivity: onCreate")
 
-        // Create the views from activity_main.xml (Toolbar + NavHost)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Use  Toolbar as the App Bar
+        // 1. Use our Toolbar as the App Bar
         setSupportActionBar(binding.toolbar)
 
-        // Get the NavController from the NavHost
+        // 2. Get the NavController from the NavHost
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        //  Connect the App Bar to navigation:
-        //    the title comes from each destination's android:label
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        // 3. Top-level destinations + the drawer.
+        //    Top-level screens show the drawer icon instead of a back arrow
+        appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.dashboardFragment, R.id.addTenantFragment, R.id.viewTenantsFragment),
+            binding.drawerLayout
+        )
+
+        // 4. Connect the App Bar and the drawer to navigation
         setupActionBarWithNavController(navController, appBarConfiguration)
+        binding.navView.setupWithNavController(navController)
+
+        // 5. Show the user's email in the drawer header.
+        //    Read the "EMAIL" extra that Login attached (Step 15)
+        val email = intent.getStringExtra("EMAIL")
+
+        //    The header already exists (app:headerLayout), so BIND to it
+        val headerBinding = NavHeaderBinding.bind(binding.navView.getHeaderView(0))
+        headerBinding.headerEmailTextView.text = email ?: "Signed in"
     }
 
-    //  Make the App Bar's back arrow work
+    // The drawer icon opens the drawer; the arrow goes back
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
@@ -67,7 +78,6 @@ class MainActivity : AppCompatActivity() {
         }
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
-
 
     // LIFECYCLE LOGS
     override fun onStart() {

@@ -2,6 +2,10 @@ package com.example.tenantmanagementsystem
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.content.Intent
+import android.view.MenuItem
+import androidx.navigation.ui.onNavDestinationSelected
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -28,24 +32,42 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Use our Toolbar as the App Bar
+        // Use  Toolbar as the App Bar
         setSupportActionBar(binding.toolbar)
 
-        // 2. Get the NavController from the NavHost
+        // Get the NavController from the NavHost
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // 3. Connect the App Bar to navigation:
+        //  Connect the App Bar to navigation:
         //    the title comes from each destination's android:label
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
-    // 4. Make the App Bar's back arrow work
+    //  Make the App Bar's back arrow work
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+
+    // Turn main_menu.xml into menu items in the App Bar
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    // What happens when a menu item is tapped
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_logout) {
+            val intent = Intent(this, Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            return true
+        }
+        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    }
+
 
     // LIFECYCLE LOGS
     override fun onStart() {
